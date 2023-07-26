@@ -3,7 +3,7 @@ import sys
 from absl import app
 
 AVAILABLE_SCRIPTS = [
-    'preprocess', 'train', 'export', 'export_onnx', 'remote_dataset'
+    'preprocess', 'train', 'export', 'export_onnx', 'remote_dataset', 'encode', 'decode'
 ]
 
 
@@ -44,5 +44,9 @@ def main():
         from scripts import remote_dataset
         sys.argv[0] = remote_dataset.__name__
         app.run(remote_dataset.main)
+    elif command == 'encode':
+        from scripts import encode
+        sys.argv[0] = encode.__name__
+        app.run(encode.main)
     else:
         raise Exception(f'Command {command} not found')
