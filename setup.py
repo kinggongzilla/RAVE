@@ -3,7 +3,7 @@ import subprocess
 
 import setuptools
 
-version = os.environ["RAVE_VERSION"]
+version = 'v2' #os.environ["RAVE_VERSION"]
 
 with open("README.md", "r") as readme:
     readme = readme.read()
