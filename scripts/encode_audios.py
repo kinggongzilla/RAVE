@@ -9,7 +9,7 @@ import torch
 
 import rave
 from torch.utils.data import DataLoader
-from rave.dataset import AudioDataset
+from rave.dataset import AudioDataset, AudioFilesDataset
 
 
 logging.basicConfig(level=logging.ERROR)
@@ -44,7 +44,7 @@ def main(argv):
     # model = rave.RAVE()
 
     #LOAD DATASET
-    dataset = AudioDataset(
+    dataset = AudioFilesDataset(
             FLAGS.db_path,
         )
     num_workers = FLAGS.workers
@@ -69,13 +69,13 @@ def main(argv):
 
     #INFERENCE: loop over data_loader and encode
     for i, batch in tqdm(enumerate(data_loader)):
-        batch = batch.to(accelerator)
-        encoded = model.encode(batch)
+        samples, file_names = batch
+        samples = samples.to(accelerator)
+        encoded = model.encode(samples)
 
         #for each sample in batch
         for j in range(FLAGS.batch):
+            #file name without extension
+            file_name = file_names[j].split('.')[0]
             #SAVE ENCODED DATA
-            np.save(f'{FLAGS.encoded_output_path}/{i}_{j}.npy', encoded[j].cpu().numpy())
-
-        # #SAVE ENCODED DATA
-        # np.save(f'{FLAGS.encoded_output_path}/{i}.npy', encoded.cpu().numpy())
+            np.save(f'{FLAGS.encoded_output_path}/{file_name}.npy', encoded[j].cpu().numpy())

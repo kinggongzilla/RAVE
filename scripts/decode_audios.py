@@ -70,7 +70,7 @@ def main(argv):
         #for each sample in batch save numpy array and audio file
         for j, sample in enumerate(decoded):
             #save as numpy array
-            np.save(f'{FLAGS.decoded_output_path}/{i}_{j}.npy', sample.cpu().numpy())
+            np.save(f'{FLAGS.decoded_output_path}/{i}_{j}.npy', sample.cpu().detach().numpy())
 
             #save as audio file
             torchaudio.save(f'{FLAGS.decoded_output_path}/{i}_{j}.wav', sample.cpu(), model.sr)

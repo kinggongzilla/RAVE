@@ -11,6 +11,7 @@ import lmdb
 import numpy as np
 import requests
 import torch
+import torchaudio
 import yaml
 from scipy.signal import lfilter
 from torch.utils import data
@@ -39,6 +40,22 @@ class LatentDataset(data.Dataset):
     def __getitem__(self, index):
         sample = np.load(self.latents_path + self.latents[index])
         return torch.from_numpy(sample)
+    
+
+class AudioFilesDataset(data.Dataset):
+    def __init__(self, audio_files_path: str):
+        super().__init__()
+        self.audio_files_path = audio_files_path
+        self.audio_files = sorted(os.listdir(self.audio_files_path))
+
+    def __len__(self):
+        return len(os.listdir(self.audio_files_path))
+    
+    def __getitem__(self, index):
+        #load mp3 files with torchaudio
+        audio, sr = torchaudio.load(self.audio_files_path + '/' + self.audio_files[index])
+        #return first channel of waveform and file name
+        return audio[0], self.audio_files[index]
 
 
 class AudioDataset(data.Dataset):
