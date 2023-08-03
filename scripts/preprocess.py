@@ -11,6 +11,7 @@ from typing import Callable, Iterable, Sequence, Tuple
 import lmdb
 import numpy as np
 import torch
+import torchaudio
 import yaml
 from absl import app, flags
 from tqdm import tqdm
@@ -167,6 +168,41 @@ def search_for_audios(path_list: Sequence[str], extensions: Sequence[str]):
     audios = flatten(audios)
     return audios
 
+def transform_to_spectrogram(
+    audio_path: str, 
+    out_path: str, 
+    sample_rate = 22050, 
+    win_length= 1024,
+    hop_length= 256,
+    n_fft=1024,
+    f_min=20.0,
+    f_max = 22050/2,
+    n_mels = 80,
+    power = 1.0,
+    normalized = True,
+):
+    if not os.path.exists(out_path):
+        raise 'out_dir does not exist'
+    if not os.path.isfile(audio_path):
+        raise 'given wav_path is not a file'
+
+    filename = os.path.basename(audio_path)
+
+    audio = torchaudio.load(audio_path)[0] #get first channel
+    mel_spectrogram = torchaudio.transforms.MelSpectrogram(
+        sample_rate=sample_rate,
+        win_length=win_length,
+        hop_length=hop_length,
+        n_fft=n_fft,
+        f_min=f_min,
+        f_max=f_max,
+        n_mels=n_mels,
+        power=power,
+        normalized=normalized)(audio)
+    mel_spectrogram = 20 * torch.log10(torch.clamp(mel_spectrogram, min=1e-5)) - 20
+    mel_spectrogram = torch.clamp((mel_spectrogram + 100) / 100, 0.0, 1.0)
+    np.save(os.path.join(out_path, f'{filename}.spec.npy'), mel_spectrogram.cpu().numpy())
+
 
 def main(argv):
     if FLAGS.lazy and os.name in ["nt", "posix"]:
@@ -200,7 +236,7 @@ def main(argv):
     if not FLAGS.lazy:
         # load chunks
         chunks = flatmap(pool, chunk_load, audios)
-        chunks = enumerate(chunks)
+        chunks = enumerate(chunks) #(audio_id, audio_sample)
 
         processed_samples = map(partial(process_audio_array, env=env), chunks)
 

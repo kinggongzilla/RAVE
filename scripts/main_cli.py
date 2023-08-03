@@ -45,8 +45,15 @@ def main():
         sys.argv[0] = remote_dataset.__name__
         app.run(remote_dataset.main)
     elif command == 'encode':
-        from scripts import encode
-        sys.argv[0] = encode.__name__
-        app.run(encode.main)
+        from scripts import encode_audios
+        sys.argv[0] = 'encode_audios'
+        app.run(encode_audios.main)
+    elif command == 'decode':
+        from scripts import decode_audios
+        sys.argv[0] = 'encode_audios'
+        app.run(decode_audios.main)
     else:
         raise Exception(f'Command {command} not found')
+
+if __name__ == "__main__":
+    main()

@@ -27,6 +27,19 @@ def get_derivator_integrator(sr: int):
 
     return lambda x: lfilter(*derivator, x), lambda x: lfilter(*integrator, x)
 
+class LatentDataset(data.Dataset):
+    def __init__(self, latents_path: str):
+        super().__init__()
+        self.latents_path = latents_path
+        self.latents = sorted(os.listdir(self.latents_path))
+
+    def __len__(self):
+        return len(os.listdir(self.latents_path))
+
+    def __getitem__(self, index):
+        sample = np.load(self.latents_path + self.latents[index])
+        return torch.from_numpy(sample)
+
 
 class AudioDataset(data.Dataset):
 
