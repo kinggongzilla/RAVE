@@ -55,14 +55,12 @@ def main(argv):
                        drop_last=True,
                        num_workers=num_workers)
 
-
-
     gin.parse_config_file(os.path.join(FLAGS.run, "config.gin"))
-    checkpoint = rave.core.search_for_run(FLAGS.run)
+    checkpoint = rave.core.search_for_run(FLAGS.run, mode='best')
 
     print(f"using {checkpoint}")
 
-    model = rave.RAVE()
+    model = rave.RAVE(enable_pqmf_encode=True)
     model.load_state_dict(torch.load(checkpoint)["state_dict"])
     model.to(accelerator)
     model.eval()
@@ -78,4 +76,4 @@ def main(argv):
             #file name without extension
             file_name = file_names[j].split('.')[0]
             #SAVE ENCODED DATA
-            np.save(f'{FLAGS.encoded_output_path}/{file_name}.npy', encoded[j].cpu().numpy())
+            np.save(f'{FLAGS.encoded_output_path}/{file_name}.npy', encoded[j].cpu().detach().numpy())

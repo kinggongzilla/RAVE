@@ -38,7 +38,10 @@ class LatentDataset(data.Dataset):
         return len(os.listdir(self.latents_path))
 
     def __getitem__(self, index):
-        sample = np.load(self.latents_path + self.latents[index])
+        #ignore if file is called .gitkeep
+        if self.latents[index] == '.gitkeep':
+            return self.__getitem__(index + 1)
+        sample = np.load(self.latents_path + '/' + self.latents[index])
         return torch.from_numpy(sample)
     
 
@@ -55,7 +58,7 @@ class AudioFilesDataset(data.Dataset):
         #load mp3 files with torchaudio
         audio, sr = torchaudio.load(self.audio_files_path + '/' + self.audio_files[index])
         #return first channel of waveform and file name
-        return audio[0], self.audio_files[index]
+        return audio[0:1], self.audio_files[index]
 
 
 class AudioDataset(data.Dataset):

@@ -35,7 +35,7 @@ flags.DEFINE_string('run',
 flags.DEFINE_integer('workers',
                      default=10,
                      help='Number of workers to spawn for dataset loading')
-flags.DEFINE_integer('batch', 8, help='Batch size')
+flags.DEFINE_integer('batch', 1, help='Batch size')
 
 def main(argv):
     accelerator = "cuda"
@@ -53,7 +53,7 @@ def main(argv):
                        num_workers=num_workers)
 
     gin.parse_config_file(os.path.join(FLAGS.run, "config.gin"))
-    checkpoint = rave.core.search_for_run(FLAGS.run)
+    checkpoint = rave.core.search_for_run(FLAGS.run, mode='best')
 
     print(f"using {checkpoint}")
 

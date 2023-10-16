@@ -334,7 +334,7 @@ class RAVE(pl.LightningModule):
 
     def encode(self, x):
         if self.pqmf is not None and self.enable_pqmf_encode:
-            x = self.pqmf(x.unsqueeze(1))
+            x = self.pqmf(x)
         z, = self.encoder.reparametrize(self.encoder(x))[:1]
         return z
 
